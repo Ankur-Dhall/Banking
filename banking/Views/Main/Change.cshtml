@@ -1,0 +1,84 @@
+﻿@model int?
+@{
+    ViewBag.Title = "Change";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Change Pin</h2>
+<form id="change">
+    <div class="form-group">
+        <label>Old Pin</label>
+        <div class="tt-container">
+            <input id="oldPin" name="oldPin" data-rule-validOldPin="true" required type="password" class="form-control" />
+        </div>
+    </div>
+    <div class="form-group" onsubmit="func()">
+        <label>New Pin</label>
+        <div class="tt-container">
+            <input id="newPin" name="newPin" data-rule-validNewPin="true" required type="password" class="form-control" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Confirm New Pin</label>
+        <div class="tt-container">
+            <input id="confirmPin" name="confirmPin" data-rule-confirmPin="true" required type="password" class="form-control" />
+        </div>
+    </div>
+    <p class="error" id="error">
+
+    </p>
+    <button class="btn btn-primary">Save</button>
+</form>
+
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            var vm = {
+                accountNumber: @Model,
+                oldPin : 0,
+                newPin : 0
+            }
+
+            $.validator.addMethod("validOldPin", function () {
+                var pin = $("#oldPin").val();
+                vm.oldPin = pin;
+                return /^[0-9][0-9][0-9][0-9]$/.test(pin);
+            }, "Pin should be a 4 digit number.");
+
+            $.validator.addMethod("validNewPin", function () {
+                var pin = $("#newPin").val();
+                return /^[0-9][0-9][0-9][0-9]$/.test(pin);
+            }, "Pin should be a 4 digit number.");
+
+            $.validator.addMethod("confirmPin", function () {
+                var newPin = $("#newPin").val();
+                var confirmPin = $("#confirmPin").val();
+                vm.newPin = confirmPin;
+                return newPin == confirmPin;
+            }, "Pins Should be same.");
+
+            $("#change").validate({
+                submitHandler: function (form) {
+
+                    $.ajax({
+                        url: "/api/change",
+                        method: "put",
+                        data: vm,
+                    }).done(function (result) {
+                        if (typeof (result) == "number") {
+                            window.location.href = "ChangeSuccessful";
+                        }
+                        else {
+                            $("#error").html(result);
+                            toastr.error("Pin Change Failed.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+

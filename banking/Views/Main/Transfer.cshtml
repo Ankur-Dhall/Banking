@@ -1,0 +1,83 @@
+﻿@model banking.ViewModels.PayeeViewModel
+@{
+    ViewBag.Title = "Transfer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Third Party Transfer</h2>
+<h4>Payee Account Number : @Model.PayeeAccountNumber</h4>
+<hr />
+
+<form id="transfer">
+
+    <div class="form-group">
+        <label>Amount</label>
+        <div class="tt-container">
+            <input id="amount" name="amount" data-rule-validAmount="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Pin</label>
+        <div class="tt-container">
+            <input id="pin" name="pin" data-rule-validPin="true" required type="password" class="form-control" />
+        </div>
+    </div>
+
+    <p class="error" id="error"></p>
+
+    <button class="btn btn-primary">Send</button>
+    <input type="button" class="btn btn-primary" value="Back To Payees" id="back"/>
+</form>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            $("#back").click(function () {
+                window.location.href = "/Main/Payees" ;
+            });
+            var vm = {
+                accountNumber : @Model.SenderAccountNumber,
+                receiver : @Model.PayeeAccountNumber,
+                pin : 0,
+                amount : 0
+            }
+
+            $.validator.addMethod("validAmount", function () {
+                var amount = parseInt($("#amount").val());
+                vm.amount = amount;
+                return amount > 0;
+            }, "Amount should be a number greater than 0.");
+
+            $.validator.addMethod("validPin", function () {
+                var pin = $("#pin").val();
+                vm.pin = pin;
+                return /^[0-9][0-9][0-9][0-9]$/.test(pin);
+            }, "Pin should be a 4 digit number.");
+
+            $("#transfer").validate({
+                submitHandler: function () {
+                    $.ajax({
+                        url: "/api/transfer",
+                        method: "put",
+                        data: vm
+                    }).done(function (result) {
+                        if (typeof (result) == "number") {
+                            $('#pin').val("");
+                            $('#amount').val("");
+                            $('#receiver').val("");
+                            $('#error').html("");
+                            toastr.success("Thank You for using our App your balance is $" + result);
+                        }
+                        else {
+                            $('#error').html(result);
+                            toastr.error("Withdraw Failed.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

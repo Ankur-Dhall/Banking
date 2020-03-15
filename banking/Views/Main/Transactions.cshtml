@@ -1,0 +1,57 @@
+﻿@model int?
+@{
+    ViewBag.Title = "Transactions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Transactions</h2>
+<table id="transactions" class="table-hover table table-bordered">
+    <thead>
+        <tr>
+            <th>Amount ($)</th>
+            <th>Date</th>
+            <th>Transaction Type</th>
+            <th>Receiver</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#transactions").DataTable({
+                lengthMenu : [[5, 10, 20, -1], [5, 10, 20, "All"]],
+                pageLength: 5,
+                language: {
+                    emptyTable : "You have not done any transactions yet."
+            },
+                ajax: {
+                    url : "/api/transactions/" + @Model,
+                    dataSrc: "",
+                },
+                columns: [
+                    {
+                        data: "amount"
+                    },
+                    {
+                        data: "date",
+                        type: Date,
+                        render: function (data, type, row) {
+                            return moment(data).format('Do MMM YYYY hh:mm A ');
+                        }
+                    },
+                    {
+                        data: "transactionType.name"
+                    },
+                    {
+                        data: "receiver"
+                    }
+                ]
+            });
+        });
+        
+    </script>
+}
+

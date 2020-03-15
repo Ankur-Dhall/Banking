@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_LayoutManager.cshtml";
+}
+
+<h2>New Customer</h2>
+
+<br />
+
+<form id="new" action="/Main/Details">
+
+    <div class="form-group">
+        <label>Name</label>
+        <div class="tt-container">
+            <input id="name" name="name" data-rule-validName="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Phone</label>
+        <div class="tt-container">
+            <input id="phoneNumber" name="phoneNumber" data-rule-validPhone="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Balance</label>
+        <div class="tt-container">
+            <input id="balance" name="balance" data-rule-validBalance="true" required type="Number" class="form-control" />
+        </div>
+    </div>
+
+    <button class="btn btn-primary">Save</button>
+
+</form>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval");
+    <script>
+        $(document).ready(function () {
+            var vm = {
+                name : "",
+                phoneNumber : "",
+                balance : 0
+            };
+
+            $.validator.addMethod("validName", function () {
+                var name = $("#name").val();
+                vm.name = name;
+                return /^[A-Z][a-z]+(\s[A-Z]){0,1}[a-z]*(\s[A-Z]){0,1}[a-z]*$/.test(name);
+            }, "Incorrect value for name.");
+
+            $.validator.addMethod("validPhone", function () {
+                var phoneNumber = $("#phoneNumber").val();
+                vm.phoneNumber = phoneNumber;
+                return /^[7-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/.test(phoneNumber);
+            }, "Phone Number should be a 10 digit number.");
+
+            $.validator.addMethod("validBalance", function () {
+                var balance = $("#balance").val();
+                vm.balance = balance;
+                return balance >= 100;
+            }, "New Customers must have $100 in their account.");
+
+            $("#new").validate({
+                submitHandler: function () {
+                    $.ajax({
+                        url: "/api/customers",
+                        method: "post",
+                        data: vm
+                    })
+                    return true;
+                }
+            });
+        });
+    </script>
+}

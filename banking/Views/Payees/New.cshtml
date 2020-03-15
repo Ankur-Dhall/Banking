@@ -1,0 +1,91 @@
+﻿@model int?
+@{
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Payee</h2>
+
+<br />
+
+<form id="new">
+
+    <div class="form-group">
+        <label>Payee Name</label>
+        <div class="tt-container">
+            <input id="name" name="name" data-rule-validName="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Payee Account Number</label>
+        <div class="tt-container">
+            <input id="payee" name="payee" data-rule-validPayee="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <div class="tt-container">
+            <input id="phoneNumber" name="phoneNumber" data-rule-validPhoneNumber="true" required type="text" class="form-control" />
+        </div>
+    </div>
+
+    <p class="error" id="error">
+
+    </p>
+
+    <button class="btn btn-primary">Save</button>
+</form>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval");
+    <script>
+        $(document).ready(function () {
+            var vm = {
+                senderAccountNumber : @Model,
+                payeeName : "",
+                phoneNumber : "",
+                payeeAccountNumber : 0
+            };
+
+            $.validator.addMethod("validName", function () {
+                var payeeName = $("#name").val();
+                vm.payeeName = payeeName;
+                return /^[A-Z][a-z]+(\s[A-Z]){0,1}[a-z]*(\s[A-Z]){0,1}[a-z]*$/.test(payeeName);
+            }, "Incorrect value for name.");
+
+            $.validator.addMethod("validPhoneNumber", function () {
+                var phoneNumber = $("#phoneNumber").val();
+                vm.phoneNumber = phoneNumber;
+                return /^[7-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/.test(phoneNumber);
+            }, "Phone Number should be a 10 digit number.");
+
+            $.validator.addMethod("validPayee", function () {
+                var payeeAccountNumber = parseInt($("#payee").val());
+                vm.payeeAccountNumber = payeeAccountNumber;
+                return payeeAccountNumber > 1000000000 && payeeAccountNumber < 2000000000;
+            }, "Account Number Must lie between 1000000000 and 2000000000");
+
+            $("#new").validate({
+                submitHandler: function () {
+                    $.ajax({
+                        url: "/api/transfer",
+                        method: "post",
+                        data: vm
+                    }).done(function (data) {
+                        if (typeof (data) == "number") {
+                            window.location.href = "/Main/Payees";
+                        }
+                        else {
+                            $("#error").html(data);
+                            toastr.error("Add Payee failed.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}
+

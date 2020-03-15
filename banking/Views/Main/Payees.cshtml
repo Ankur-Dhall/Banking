@@ -1,0 +1,39 @@
+﻿@model int?
+@{
+    ViewBag.Title = "Payees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Your Payees</h2>
+@Html.ActionLink("Add Payee", "New", "Payees", null, new { @class = "btn btn-primary" })
+<br />
+<br />
+<div class="row">
+    <div class="col-md-4">
+        <ul id="payees" class="list-group"></ul>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/transfer/" + @Model,
+                success: function (data) {
+                    if (data.length > 0) {
+                        for (x of data) {
+                            $("#payees").append('<li class="list-group-item"><a href="/Main/Transfer/' + x.payeeAccountNumber + '">' + x.payeeName + '</a></li>');
+                        }
+                    }
+                    else {
+                        $("#payees").append("<li class='list-group-item'>You currently have no payees.</li>")
+                    }
+
+                }
+            });
+        });
+    </script>
+}
+

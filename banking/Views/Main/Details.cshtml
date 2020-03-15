@@ -1,0 +1,29 @@
+﻿@model int?
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 id="heading"></h2>
+<h4>Your Account Details are:</h4>
+<div class="row">
+    <div class="col-md-4">
+        <ul id="info" class="list-group"></ul>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "/api/details/" + @Model,
+                success: function (data) {
+                    $("#heading").html("Welcome " + data.name + "!");
+                    $("#info").append("<li class='list-group-item'>Balance : " + data.balance + "</li>");
+                    $("#info").append("<li class='list-group-item'>Phone Number : " + data.phoneNumber + "</li>");
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewBag.Title = "ManageCustomers";
+    Layout = "~/Views/Shared/_LayoutManager.cshtml";
+}
+
+<h2>ManageCustomers</h2>
+
+@Html.ActionLink("Add Customer", "New", "Customers", null, new { @class = "btn btn-primary" })
+<br /><br />
+<table id="movies" class="table table-bordered table-hover ">
+    <thead>
+        <tr>
+            <th>Account Number</th>
+            <th>Name</th>
+            <th>Balance</th>
+            <th>Phone Number</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var table = $("#movies").DataTable({
+                ajax: {
+                    url: "/api/customers",
+                    dataSrc: ""
+                },
+                columns: [
+                    {
+                        data: "accountNumber",
+                    },
+                    {
+                        data: "name",
+                    },
+                    {
+                        data: "balance"
+                    },
+                    {
+                        data: "phoneNumber"
+                    }
+                ]
+            });
+        });
+    </script>
+}
